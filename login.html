@@ -1,0 +1,32 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Clock-in Login with Discord</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2em;
+    }
+    button {
+      padding: 1em 2em;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 10px;
+      background-color: #5865F2;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>🔐 เข้าสู่ระบบเพื่อ Clock-in</h2>
+  <p>ระบบจะใช้บัญชี Discord ของคุณในการยืนยันตัวตน</p>
+  <button onclick="window.location.href='https://discord.com/api/oauth2/authorize?client_id=1357639875721039902&redirect_uri=https://ALPHATUTOR-dev.github.io/clockin-location/&response_type=token&scope=identify'">
+    🔗 Login with Discord
+  </button>
+</body>
+</html>

@@ -4,30 +4,33 @@
 <head>
   <meta charset="UTF-8">
   <title>Clock-in Location Checker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       font-family: sans-serif;
       padding: 2em;
       text-align: center;
+      font-size: 1.2em;
     }
     #status {
-      font-size: 1.2em;
-      margin-bottom: 1em;
+      font-size: 1.4em;
+      margin-bottom: 1.5em;
     }
     button {
-      padding: 1em 2em;
-      font-size: 1.1em;
+      padding: 1.2em 2.5em;
+      font-size: 1.2em;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       background-color: #00aa00;
       color: white;
       cursor: pointer;
       display: none;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
   </style>
 </head>
 <body>
-  <h2>📍 ตรวจสอบตำแหน่งก่อน Clock-in</h2>
+  <h2 style="font-size: 1.6em;">📍 ตรวจสอบตำแหน่งก่อน Clock-in</h2>
   <div id="status">กำลังตรวจสอบตำแหน่งของคุณ...</div>
   <button id="clockinBtn">✅ Clock-in เลย!</button>
 

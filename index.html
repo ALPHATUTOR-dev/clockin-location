@@ -16,13 +16,6 @@
       font-size: 1.4em;
       margin-bottom: 1.5em;
     }
-    input {
-      padding: 0.8em;
-      font-size: 1em;
-      margin-bottom: 1em;
-      width: 80%;
-      max-width: 300px;
-    }
     button {
       padding: 1.2em 2.5em;
       font-size: 1.2em;
@@ -39,8 +32,6 @@
 <body>
   <h2 style="font-size: 1.6em;">📍 ตรวจสอบตำแหน่งก่อน Clock-in</h2>
   <div id="status">กำลังตรวจสอบตำแหน่งของคุณ...</div>
-  <input type="text" id="nameInput" placeholder="กรอกชื่อพนักงาน..." />
-  <br>
   <button id="clockinBtn">✅ Clock-in เลย!</button>
 
   <script>
@@ -79,22 +70,21 @@
     }
 
     document.getElementById("clockinBtn").addEventListener("click", () => {
-      const name = document.getElementById("nameInput").value.trim();
-      if (!name) {
-        alert("กรุณากรอกชื่อก่อน Clock-in");
-        return;
-      }
       const now = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-      const content = `✅ **Clock-in** โดย ${name}\n🕒 เวลา: ${now}\n📍 สาขา: ${officeName}`;
+      const message = {
+        content: `✅ **Clock-in**\n🕒 เวลา: ${now}\n📍 สาขา: ${officeName}`
+      };
       fetch(webhookUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ content })
+        body: JSON.stringify(message)
       }).then(() => {
         showStatus("🎉 Clock-in สำเร็จ! ข้อมูลถูกส่งไปที่ Discord แล้ว");
         document.getElementById("clockinBtn").disabled = true;
+      }).catch(() => {
+        showStatus("❌ ไม่สามารถส่งข้อมูลเข้า Discord ได้");
       });
     });
 

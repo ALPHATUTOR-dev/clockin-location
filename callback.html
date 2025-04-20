@@ -3,23 +3,81 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>Redirecting...</title>
-  <script>
-    function extractTokenFromHash() {
-      const hash = window.location.hash.substring(1);
-      const params = new URLSearchParams(hash);
+  <title>Clock-in Callback</title>
+  <script type="module">
+    import { sendToDiscord } from './webhook.js';
+
+    async function run() {
+      const params = new URLSearchParams(window.location.hash.substring(1));
       const token = params.get("access_token");
-      if (token) {
-        localStorage.setItem("discord_token", token);
-        window.location.href = "login.html";
-      } else {
-        document.body.innerHTML = "<h1>❌ ไม่พบ access token</h1>";
+      const state = params.get("state"); // Discord user_id ที่แนบมาจาก login.html
+
+      if (!token) {
+        document.body.innerHTML = "<h2>❌ ไม่สามารถเข้าสู่ระบบ Discord ได้</h2>";
+        return;
       }
+
+      // ดึงชื่อผู้ใช้จาก Discord API
+      const userRes = await fetch("https://discord.com/api/users/@me", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const userData = await userRes.json();
+      const username = `${userData.username}#${userData.discriminator}`;
+
+      // ตรวจพิกัด GPS
+      navigator.geolocation.getCurrentPosition(async position => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        // คำนวณรัศมี
+        const branches = [
+          { name: "เมกาบางนา", lat: 13.6431, lng: 100.6794 },
+          { name: "สุขาภิบาล 3", lat: 13.7793, lng: 100.6732 }
+        ];
+
+        let foundBranch = null;
+        const distance = (a, b) => {
+          const R = 6371;
+          const dLat = (b.lat - a.lat) * Math.PI / 180;
+          const dLng = (b.lng - a.lng) * Math.PI / 180;
+          const aa = Math.sin(dLat/2)**2 + Math.cos(a.lat * Math.PI/180) * Math.cos(b.lat * Math.PI/180) * Math.sin(dLng/2)**2;
+          return R * 2 * Math.atan2(Math.sqrt(aa), Math.sqrt(1 - aa));
+        };
+
+        for (const branch of branches) {
+          if (distance({ lat, lng }, branch) <= 1.0) {
+            foundBranch = branch.name;
+            break;
+          }
+        }
+
+        if (!foundBranch) {
+          document.body.innerHTML = "<h2>❌ คุณอยู่นอกพื้นที่สาขา ไม่สามารถ Clock-in ได้</h2>";
+          return;
+        }
+
+        // เวลา
+        const time = new Date().toLocaleTimeString("th-TH", { hour: '2-digit', minute: '2-digit' });
+
+        // ส่งเข้า Discord Webhook
+        await sendToDiscord({ username, branch: foundBranch, time, lat, lng });
+
+        document.body.innerHTML = `
+          <h2>✅ Clock-in สำเร็จแล้ว</h2>
+          <p>คุณ <strong>${username}</strong><br>
+          สาขา: ${foundBranch}<br>
+          เวลา: ${time}<br>
+          📍 พิกัด: ${lat.toFixed(5)}, ${lng.toFixed(5)}</p>
+        `;
+      }, error => {
+        document.body.innerHTML = "<h2>❌ ไม่สามารถดึงตำแหน่ง GPS ได้</h2>";
+      });
     }
-    window.onload = extractTokenFromHash;
+
+    run();
   </script>
 </head>
 <body>
-  <h1>กำลังเข้าสู่ระบบ...</h1>
+  <h2>กำลังประมวลผล Clock-in...</h2>
 </body>
 </html>

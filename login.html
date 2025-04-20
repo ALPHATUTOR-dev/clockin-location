@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Discord Login</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 3rem; }
+    button {
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      background-color: #5865F2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #user-info { margin-top: 2rem; font-size: 1.1rem; }
+  </style>
+</head>
+<body>
+  <h1>🔐 Login ด้วย Discord</h1>
+  <div id="login-section">
+    <button onclick="loginWithDiscord()">Login</button>
+  </div>
+  <div id="user-info" style="display:none;"></div>
+
+  <script>
+    const CLIENT_ID = "1363339460149772310";
+    const REDIRECT_URI = "https://alphatutor-dev.github.io/clockin-location/callback.html";
+    const SCOPE = "identify";
+
+    function loginWithDiscord() {
+      const discordURL = \`https://discord.com/api/oauth2/authorize?client_id=\${CLIENT_ID}&redirect_uri=\${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=\${SCOPE}\`;
+      window.location.href = discordURL;
+    }
+
+    function showUserInfo(user) {
+      document.getElementById("login-section").style.display = "none";
+      const info = document.getElementById("user-info");
+      info.innerHTML = \`✅ Logged in as <strong>\${user.username}#\${user.discriminator}</strong>\`;
+      info.style.display = "block";
+    }
+
+    async function fetchDiscordUser(token) {
+      const res = await fetch("https://discord.com/api/users/@me", {
+        headers: { Authorization: \`Bearer \${token}\` }
+      });
+      return res.ok ? await res.json() : null;
+    }
+
+    async function checkLogin() {
+      const token = localStorage.getItem("discord_token");
+      if (token) {
+        const user = await fetchDiscordUser(token);
+        if (user) {
+          showUserInfo(user);
+        } else {
+          localStorage.removeItem("discord_token");
+        }
+      }
+    }
+
+    checkLogin();
+  </script>
+</body>
+</html>

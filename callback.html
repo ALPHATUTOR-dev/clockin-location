@@ -1,0 +1,25 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecting...</title>
+  <script>
+    function extractTokenFromHash() {
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      const token = params.get("access_token");
+      if (token) {
+        localStorage.setItem("discord_token", token);
+        window.location.href = "login.html";
+      } else {
+        document.body.innerHTML = "<h1>❌ ไม่พบ access token</h1>";
+      }
+    }
+    window.onload = extractTokenFromHash;
+  </script>
+</head>
+<body>
+  <h1>กำลังเข้าสู่ระบบ...</h1>
+</body>
+</html>

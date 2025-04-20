@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="="th">
+<head>
+  <meta charset="UTF-8">
+  <title>Clock-in Location Checker</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; max-width: 600px; margin: auto; text-align: center; }
+    h1 { color: #2e7d32; }
+    .result { margin-top: 1rem; font-size: 1.2rem; }
+  </style>
+</head>
+<body>
+  <h1>🔒 ตรวจพิกัดก่อน Clock-in</h1>
+  <p>ระบบจะตรวจสอบว่าคุณอยู่ในพื้นที่ของออฟฟิศหรือไม่...</p>
+  <div class="result" id="result">📍 กำลังโหลดข้อมูล GPS...</div>
+
+  <script>
+    const branches = [
+      { name: "เมกาบางนา", lat: 13.6431, lng: 100.6794 },
+      { name: "สุขาภิบาล 3", lat: 13.7793, lng: 100.6732 }
+    ];
+
+    function getDistance(lat1, lng1, lat2, lng2) {
+      const R = 6371; // Earth's radius in km
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLng = (lng2 - lng1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLng/2) * Math.sin(dLng/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    function checkLocation(position) {
+      const userLat = position.coords.latitude;
+      const userLng = position.coords.longitude;
+      let found = false;
+      let message = "";
+
+      branches.forEach(branch => {
+        const distance = getDistance(userLat, userLng, branch.lat, branch.lng);
+        if (distance <= 1) {
+          found = true;
+          message = `✅ คุณอยู่ในรัศมีของสาขา <strong>${branch.name}</strong><br>พร้อม Clock-in ได้เลย!`;
+        }
+      });
+
+      if (!found) {
+        message = "❌ คุณอยู่นอกพื้นที่ Clock-in ของบริษัท";
+      }
+
+      document.getElementById("result").innerHTML = message + 
+        `<br><br><small>พิกัดคุณ: ${userLat.toFixed(5)}, ${userLng.toFixed(5)}</small>`;
+    }
+
+    function handleError(error) {
+      document.getElementById("result").textContent = "⚠️ ไม่สามารถดึงข้อมูลตำแหน่งได้: " + error.message;
+    }
+
+    navigator.geolocation.getCurrentPosition(checkLocation, handleError);
+  </script>
+</body>
+</html>
